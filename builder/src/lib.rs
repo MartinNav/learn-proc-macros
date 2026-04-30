@@ -49,6 +49,15 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 }
 
             )*
+            pub fn build(&self)-> Option<#name> {
+                Some(
+                #name {
+                    #(
+                        #field_names: self.#field_names.clone().expect(&format!("{} is not set", stringify!(#field_names))),
+                    )*
+                }
+            )
+            }
         }
 
     };

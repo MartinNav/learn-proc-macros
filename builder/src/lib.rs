@@ -1,7 +1,7 @@
 use core::convert::From;
 
 use proc_macro::{TokenStream};
-use syn::{parse_macro_input, DeriveInput};
+use syn::{DeriveInput, parse_macro_input, token::Type};
 use quote::quote;
 
 #[proc_macro_derive(Builder)]
@@ -25,19 +25,17 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let bident = syn::Ident::new(&format!("{}Builder", name), name.span());
     let expanded = quote!{
         pub struct #bident {
-            executable: Option<String>,
-            args: Option<Vec<String>>,
-            env: Option<Vec<String>>,
-            current_dir: Option<String>,
+            #(
+                #field_names: Option<#field_types>,
+            )*
         }
         
         impl #name {
             pub fn builder()-> #bident {
                 #bident {
-                    executable: None,
-                    args: None,
-                    env: None,
-                    current_dir: None,
+                    #(
+                        #field_names: None,
+                    )*
                 }
             }
         }
@@ -50,6 +48,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
             )*
             pub fn build(&self)-> Option<#name> {
+                // I know this is unsafe, but it somehow works, so I will keep it here and maybe implement it properly later.
                 Some(
                 #name {
                     #(
